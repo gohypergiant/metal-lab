@@ -31,6 +31,8 @@ class DetailViewController: UIViewController {
             self.metalCommandQueue = self.metalDevice.makeCommandQueue()
             self.metalView.device = self.metalDevice
             self.metalView.contentMode = .scaleAspectFit
+            self.metalView.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
+            self.metalView.framebufferOnly = false
             renderImage()
         }
     }
@@ -51,11 +53,12 @@ class DetailViewController: UIViewController {
         self.firstTexture = loadTexture(name: "0.png")
         self.secondTexture = loadTexture(name: "1.png")
         
-        let texture:MTLTexture? = self.firstTexture
+        let texture:MTLTexture? = self.secondTexture
         self.metalView.drawableSize = CGSize(width: (texture?.width)!, height: (texture?.height)!)
         let commandBuffer = self.metalCommandQueue.makeCommandBuffer()
         let blitEncoder = commandBuffer?.makeBlitCommandEncoder()
         let drawable = self.metalView.currentDrawable
+
         blitEncoder?.copy(from: texture!, sourceSlice: 0, sourceLevel: 0,
                           sourceOrigin: MTLOrigin(x: 0, y: 0, z: 0),
                           sourceSize: MTLSizeMake((texture?.width)!, (texture?.height)!, (texture?.depth)!),
