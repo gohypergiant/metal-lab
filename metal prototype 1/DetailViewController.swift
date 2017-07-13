@@ -6,15 +6,17 @@
 //  Copyright © 2017 Daniel Pasco. All rights reserved.
 //
 
+//
+
 import UIKit
 import MetalKit
 
 class DetailViewController: UIViewController {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
-    @IBOutlet weak var metalView: MetalView!
+    var metalView: MTKView!
     
-    static var cachedMetalView: MetalView!
+    static var cachedMetalView: MTKView!
     static var cachedMetalDevice: MTLDevice!
     var metalCommandQueue: MTLCommandQueue!
     var firstTexture: MTLTexture?
@@ -31,16 +33,19 @@ class DetailViewController: UIViewController {
             DetailViewController.cachedMetalDevice = defaultDevice
         }
         
-        if DetailViewController.cachedMetalView == nil {
-            if self.metalView != nil {
-                DetailViewController.cachedMetalView = self.metalView
-            }
-        }
+        let debugMetalView = MTKView(frame: self.view.bounds, device: DetailViewController.cachedMetalDevice )
+        self.metalView = debugMetalView
         self.metalCommandQueue = DetailViewController.cachedMetalDevice.makeCommandQueue()
+        
+//        self.metalView.delegate = self
+        self.metalView.framebufferOnly = false
         self.metalView.device = DetailViewController.cachedMetalDevice
         self.metalView.contentMode = .scaleAspectFit
+        self.metalView.autoResizeDrawable = true
+        self.metalView.contentScaleFactor = UIScreen.main.scale
+        self.metalView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.metalView.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
-        self.metalView.framebufferOnly = false
+        self.view.insertSubview(self.metalView, at: 0)
     }
     
     func configureView() {
@@ -50,15 +55,8 @@ class DetailViewController: UIViewController {
                 label.text = detail.description
             }
         }
-        if DetailViewController.cachedMetalView == nil {
-            if self.metalView != nil {
-                DetailViewController.cachedMetalView = self.metalView
-            }
-        }
-        else {
-            initMetal()
-            renderImage()
-        }
+        initMetal()
+        renderImage()
     }
 
     func loadTexture(name:String)->MTLTexture? {
@@ -74,11 +72,17 @@ class DetailViewController: UIViewController {
     }
     
     func renderImage() {
-        self.firstTexture = loadTexture(name: self.detailItem!)
-        self.secondTexture = loadTexture(name: self.detailItem!)
         
+        if self.detailItem != nil {
+            self.firstTexture = loadTexture(name: self.detailItem!)
+            self.secondTexture = loadTexture(name: self.detailItem!)
+        }
+        else {
+            self.firstTexture = loadTexture(name: "0.png")
+            self.secondTexture = loadTexture(name: "0.png")
+        }
         let texture:MTLTexture? = self.secondTexture
-        self.metalView.drawableSize = CGSize(width: (texture?.width)!, height: (texture?.height)!)
+//        self.metalView.drawableSize = CGSize(width: (texture?.width)!, height: (texture?.height)!)
         let commandBuffer = self.metalCommandQueue.makeCommandBuffer()
         let blitEncoder = commandBuffer?.makeBlitCommandEncoder()
         let drawable = self.metalView.currentDrawable

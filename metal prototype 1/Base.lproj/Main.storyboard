@@ -33,28 +33,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fwi-Nb-2Nx" userLabel="Metal View" customClass="MetalView" customModule="metal_prototype_1" customModuleProvider="target">
-                                <rect key="frame" x="10" y="74" width="355" height="583"/>
-                                <color key="backgroundColor" red="0.0" green="0.56904578210000001" blue="0.57461684940000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <viewLayoutGuide key="safeArea" id="X1T-pb-RMn"/>
-                            </view>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="llr-m9-2NI">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <items/>
+                                <color key="barTintColor" red="0.9842103123664856" green="0.98437494039535522" blue="0.98418718576431274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </toolbar>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.58105844259999995" green="0.12855249639999999" blue="0.57453137639999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="fwi-Nb-2Nx" firstAttribute="centerX" secondItem="VUw-jc-0yf" secondAttribute="centerX" id="APF-9e-3NU"/>
-                            <constraint firstItem="fwi-Nb-2Nx" firstAttribute="leading" secondItem="VUw-jc-0yf" secondAttribute="leading" constant="10" id="OXL-dN-YP1"/>
-                            <constraint firstItem="fwi-Nb-2Nx" firstAttribute="top" secondItem="VUw-jc-0yf" secondAttribute="top" constant="10" id="Ttc-wA-Bkf"/>
-                            <constraint firstItem="fwi-Nb-2Nx" firstAttribute="bottom" secondItem="VUw-jc-0yf" secondAttribute="bottom" constant="-10" id="bPf-Nx-Hlr"/>
-                            <constraint firstItem="fwi-Nb-2Nx" firstAttribute="trailing" secondItem="VUw-jc-0yf" secondAttribute="trailing" constant="-10" id="eCC-wl-TAP"/>
-                            <constraint firstItem="fwi-Nb-2Nx" firstAttribute="centerY" secondItem="VUw-jc-0yf" secondAttribute="centerY" id="f0u-aP-95h"/>
+                            <constraint firstItem="llr-m9-2NI" firstAttribute="bottom" secondItem="VUw-jc-0yf" secondAttribute="bottom" id="eBx-0m-2DK"/>
+                            <constraint firstItem="llr-m9-2NI" firstAttribute="trailing" secondItem="VUw-jc-0yf" secondAttribute="trailing" id="wRB-jl-VZo"/>
+                            <constraint firstItem="llr-m9-2NI" firstAttribute="leading" secondItem="VUw-jc-0yf" secondAttribute="leading" id="wgZ-dj-gNy"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="VUw-jc-0yf"/>
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Detail" id="mOI-FS-AaM"/>
-                    <connections>
-                        <outlet property="metalView" destination="fwi-Nb-2Nx" id="pcf-kG-je0"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FJe-Yq-33r" sceneMemberID="firstResponder"/>
             </objects>
