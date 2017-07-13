@@ -12,6 +12,7 @@ import UIKit
 import MetalKit
 
 class DetailViewController: UIViewController {
+//    class DetailViewController: UIViewController, MTKViewDelegate {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     var metalView: MTKView!
@@ -23,11 +24,20 @@ class DetailViewController: UIViewController {
     var secondTexture: MTLTexture?
     
     override func awakeFromNib() {
-        if DetailViewController.cachedMetalView != nil {
-            self.metalView = DetailViewController.cachedMetalView
-//            initMetal()
-        }
+
     }
+    
+//    extension MTKViewController: MTKViewDelegate {
+//        public func drawInMTKView(view: MTKView) {
+//            guard
+//                var texture = texture,
+//                let device = device
+//                else { return }
+//
+//            /// The rendering goes here.
+//        }
+//    }
+
     func initMetal() {
         if let defaultDevice = MTLCreateSystemDefaultDevice() {
             DetailViewController.cachedMetalDevice = defaultDevice

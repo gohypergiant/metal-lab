@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "metal prototype 1/DetailViewController.swift"
-            timestampString = "521673746.742827"
+            timestampString = "521674035.733734"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
+            startingLineNumber = "48"
+            endingLineNumber = "48"
             landmarkName = "initMetal()"
             landmarkType = "7">
          </BreakpointContent>
