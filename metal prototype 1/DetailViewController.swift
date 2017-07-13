@@ -12,7 +12,7 @@ import MetalKit
 class DetailViewController: UIViewController {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
-    @IBOutlet weak var metalView: MTKView!
+    @IBOutlet weak var metalView: MetalView!
     
     var metalCommandQueue: MTLCommandQueue!
     var firstTexture: MTLTexture?

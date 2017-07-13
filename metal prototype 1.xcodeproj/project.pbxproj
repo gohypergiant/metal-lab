@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		378221021F174BB200F2BA1D /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378221011F174BB200F2BA1D /* MetalView.swift */; };
 		37F8B6FC1F17139C00497E29 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8B6FB1F17139C00497E29 /* AppDelegate.swift */; };
 		37F8B6FE1F17139C00497E29 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8B6FD1F17139C00497E29 /* MasterViewController.swift */; };
 		37F8B7001F17139C00497E29 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8B6FF1F17139C00497E29 /* DetailViewController.swift */; };
@@ -41,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		378221011F174BB200F2BA1D /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		37F8B6F81F17139C00497E29 /* metal prototype 1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "metal prototype 1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		37F8B6FB1F17139C00497E29 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		37F8B6FD1F17139C00497E29 /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				37F8B7041F17139C00497E29 /* Assets.xcassets */,
 				37F8B7061F17139C00497E29 /* LaunchScreen.storyboard */,
 				37F8B7091F17139C00497E29 /* Info.plist */,
+				378221011F174BB200F2BA1D /* MetalView.swift */,
 			);
 			path = "metal prototype 1";
 			sourceTree = "<group>";
@@ -291,6 +294,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				378221021F174BB200F2BA1D /* MetalView.swift in Sources */,
 				37F8B7001F17139C00497E29 /* DetailViewController.swift in Sources */,
 				37F8B6FE1F17139C00497E29 /* MasterViewController.swift in Sources */,
 				37F8B6FC1F17139C00497E29 /* AppDelegate.swift in Sources */,
@@ -564,6 +568,7 @@
 				37F8B7241F17139D00497E29 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		37F8B7251F17139D00497E29 /* Build configuration list for PBXNativeTarget "metal prototype 1Tests" */ = {
 			isa = XCConfigurationList;
@@ -572,6 +577,7 @@
 				37F8B7271F17139D00497E29 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		37F8B7281F17139D00497E29 /* Build configuration list for PBXNativeTarget "metal prototype 1UITests" */ = {
 			isa = XCConfigurationList;
@@ -580,6 +586,7 @@
 				37F8B72A1F17139D00497E29 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
