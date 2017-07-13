@@ -63,7 +63,7 @@ class DetailViewController: UIViewController, MTKViewDelegate {
     }
     
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-
+//projectionMatrix = Matrix4.makePerspectiveViewAngle(Matrix4.degrees(toRad: 85.0), aspectRatio: Float(self.view.bounds.size.width / self.view.bounds.size.height), nearZ: 0.01, farZ: 100.0)
     }
 
     open func didRenderTexture(_ texture: MTLTexture, withCommandBuffer commandBuffer: MTLCommandBuffer, device: MTLDevice) {
@@ -78,7 +78,6 @@ class DetailViewController: UIViewController, MTKViewDelegate {
             let currentDrawable = metalView.currentDrawable,
             let renderPipelineState = renderPipelineState
         else {
-//            semaphore.signal()
             return
         }
         let commandBuffer = metalCommandQueue?.makeCommandBuffer()
@@ -95,12 +94,40 @@ class DetailViewController: UIViewController, MTKViewDelegate {
             guard let unwrappedSelf = self else { return }
 
             unwrappedSelf.didRenderTexture(unwrappedSelf.secondTexture!, withCommandBuffer: buffer, device: unwrappedSelf.metalDevice!)
-//            unwrappedSelf.semaphore.signal()
         }
         commandBuffer?.present(currentDrawable)
         commandBuffer?.commit()
     }
+
+    
 //
+//    NSParameterAssert([self imageTransformation] != nil);
+//    if ([[self imageTransformation] _initialZoomValueHasBeenSet])
+//    {
+//    [self setZoomValue:[[self imageTransformation] zoom]];
+//    }
+//    else
+//    {
+//    // See the decl of this property for an explanation of this hack.
+//    [[self imageTransformation] _setInitialZoomValueHasBeenSet:YES];
+//
+//    // If the image size is larger than our view, we zoom to fit otherwise don't do anything
+//    // The |imageTransformation| hasn't been set yet, meaning this is the first time this image scope has been dispalyed, and we need to initially zoom to fit (if the image is too big for the view).
+//    NSSize originalImageSize = [[self imageLayer] visibleOriginalImageSize];
+//    NSSize viewSize = [self bounds].size;
+//    if (viewSize.width < originalImageSize.width
+//    || viewSize.height < originalImageSize.height)
+//    {
+//    CGFloat aZoomToSet = [[self imageTransformation] normalizedZoomValueForRealZoomValue:[self zoomValueForFitToView] minValue:0 maxValue:0];
+//    [[self imageTransformation] setZoom:aZoomToSet];
+//    }
+//    }
+//
+//    // bounds is already pixel based, no need to do backing rect conversion.
+//    NSRect bounds = [self bounds];
+//    // This method expects the point in the view's coordinae system
+//    [self _setImageCenterPointInView:SFRectCenter(bounds)];
+    
     fileprivate func initializeRenderPipelineState() {
         let library = metalDevice?.makeDefaultLibrary()
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -108,13 +135,7 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         pipelineDescriptor.depthAttachmentPixelFormat = .invalid
         
-        /**
-         *  Vertex function to map the texture to the view controller's view
-         */
         pipelineDescriptor.vertexFunction = library?.makeFunction(name: "mapTexture")
-        /**
-         *  Fragment function to display texture's pixels in the area bounded by vertices of `mapTexture` shader
-         */
         pipelineDescriptor.fragmentFunction = library?.makeFunction(name: "displayTexture")
         
         do {
@@ -126,49 +147,14 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         }
     }
 
-    func configureView() {
-        // Update the user interface for the detail item.
-        if let detail = detailItem {
-            if let label = detailDescriptionLabel {
-                label.text = detail.description
-            }
-        }
-    }
-
-    func renderImage() {
-        
-        let texture:MTLTexture? = self.secondTexture
-        let commandBuffer = self.metalCommandQueue?.makeCommandBuffer()
-        let blitEncoder = commandBuffer?.makeBlitCommandEncoder()
-        let drawable = self.metalView.currentDrawable
-
-        blitEncoder?.copy(from: texture!, sourceSlice: 0, sourceLevel: 0,
-                          sourceOrigin: MTLOrigin(x: 0, y: 0, z: 0),
-                          sourceSize: MTLSizeMake((texture?.width)!, (texture?.height)!, (texture?.depth)!),
-                          to: (drawable?.texture)!, destinationSlice: 0, destinationLevel: 0,
-                          destinationOrigin: MTLOrigin(x: 0, y: 0, z: 0))
-        blitEncoder?.endEncoding()
-        
-        // Present current drawable
-        commandBuffer?.present(drawable!)
-        commandBuffer?.commit()
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        configureView()
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
     var detailItem: String? {
         didSet {
             // Update the view.
-            configureView()
+            if let detail = detailItem {
+                if let label = detailDescriptionLabel {
+                    label.text = detail.description
+                }
+            }
             if detailItem != nil {
                 firstTexture = loadTexture(name: detailItem!)
                 secondTexture = loadTexture(name: detailItem!)
