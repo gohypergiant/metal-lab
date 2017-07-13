@@ -10,46 +10,32 @@
 
 import UIKit
 import MetalKit
-
 class DetailViewController: UIViewController {
-//    class DetailViewController: UIViewController, MTKViewDelegate {
+
+//class DetailViewController: UIViewController, MTKViewDelegate {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     var metalView: MTKView!
     
-    static var cachedMetalView: MTKView!
-    static var cachedMetalDevice: MTLDevice!
-    var metalCommandQueue: MTLCommandQueue!
+    var metalCommandQueue: MTLCommandQueue?
     var firstTexture: MTLTexture?
     var secondTexture: MTLTexture?
-    
-    override func awakeFromNib() {
 
-    }
+    /// Metal device
+    var defaultMetalDevice = MTLCreateSystemDefaultDevice()
     
-//    extension MTKViewController: MTKViewDelegate {
-//        public func drawInMTKView(view: MTKView) {
-//            guard
-//                var texture = texture,
-//                let device = device
-//                else { return }
-//
-//            /// The rendering goes here.
-//        }
-//    }
-
+    /// Metal pipeline state we use for rendering
+    var renderPipelineState: MTLRenderPipelineState?
+    
     func initMetal() {
-        if let defaultDevice = MTLCreateSystemDefaultDevice() {
-            DetailViewController.cachedMetalDevice = defaultDevice
-        }
         
-        let debugMetalView = MTKView(frame: self.view.bounds, device: DetailViewController.cachedMetalDevice )
+        let debugMetalView = MTKView(frame: self.view.bounds, device: defaultMetalDevice )
         self.metalView = debugMetalView
-        self.metalCommandQueue = DetailViewController.cachedMetalDevice.makeCommandQueue()
+        self.metalCommandQueue = defaultMetalDevice?.makeCommandQueue()
         
-//        self.metalView.delegate = self
+        //        self.metalView.delegate = self
         self.metalView.framebufferOnly = false
-        self.metalView.device = DetailViewController.cachedMetalDevice
+//        self.metalView.device = defaultMetalDevice
         self.metalView.contentMode = .scaleAspectFit
         self.metalView.autoResizeDrawable = true
         self.metalView.contentScaleFactor = UIScreen.main.scale
@@ -58,6 +44,68 @@ class DetailViewController: UIViewController {
         self.view.insertSubview(self.metalView, at: 0)
     }
     
+//    public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+//
+//    }
+//
+//    func draw(in view: MTKView) {
+//        guard
+//            let currentRenderPassDescriptor = metalView.currentRenderPassDescriptor,
+//            let currentDrawable = metalView.currentDrawable,
+//            let renderPipelineState = renderPipelineState
+//        else {
+//            semaphore.signal()
+//            return
+//        }
+//        let commandBuffer = self.metalCommandQueue.makeCommandBuffer()
+//
+//        let encoder = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
+//        encoder?.pushDebugGroup("RenderFrame")
+//        encoder.setRenderPipelineState(renderPipelineState)
+//        encoder.setFragmentTexture(texture, at: 0)
+//        encoder??.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: 1)
+//        encoder?.popDebugGroup()
+//        encoder?.endEncoding()
+//
+//        commandBuffer.addScheduledHandler { [weak self] (buffer) in
+//            guard let unwrappedSelf = self else { return }
+//
+//            unwrappedSelf.didRenderTexture(texture, withCommandBuffer: buffer, device: device)
+//            unwrappedSelf.semaphore.signal()
+//        }
+//        commandBuffer.present(currentDrawable)
+//        commandBuffer.commit()
+//    }
+//
+//    fileprivate func initializeRenderPipelineState() {
+//        guard
+//            let device = device,
+//            let library = device.newDefaultLibrary()
+//            else { return }
+//
+//        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+//        pipelineDescriptor.sampleCount = 1
+//        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+//        pipelineDescriptor.depthAttachmentPixelFormat = .invalid
+//
+//        /**
+//         *  Vertex function to map the texture to the view controller's view
+//         */
+//        pipelineDescriptor.vertexFunction = library.makeFunction(name: "mapTexture")
+//        /**
+//         *  Fragment function to display texture's pixels in the area bounded by vertices of `mapTexture` shader
+//         */
+//        pipelineDescriptor.fragmentFunction = library.makeFunction(name: "displayTexture")
+//
+//        do {
+//            try renderPipelineState = device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+//        }
+//        catch {
+//            assertionFailure("Failed creating a render state pipeline. Can't render the texture without one.")
+//            return
+//        }
+//    }
+
     func configureView() {
         // Update the user interface for the detail item.
         if let detail = detailItem {
@@ -74,7 +122,7 @@ class DetailViewController: UIViewController {
         let cgImage = image?.cgImage
         var texture:MTLTexture?
         do {
-            texture = try MTKTextureLoader(device: DetailViewController.cachedMetalDevice).newTexture(with: cgImage!, options: nil)
+            texture = try MTKTextureLoader(device: defaultMetalDevice!).newTexture(with: cgImage!, options: nil)
         }  catch let error as NSError {
             print("[ERROR] - Failed to create texture. \(error)")
         }
@@ -93,7 +141,7 @@ class DetailViewController: UIViewController {
         }
         let texture:MTLTexture? = self.secondTexture
 //        self.metalView.drawableSize = CGSize(width: (texture?.width)!, height: (texture?.height)!)
-        let commandBuffer = self.metalCommandQueue.makeCommandBuffer()
+        let commandBuffer = self.metalCommandQueue?.makeCommandBuffer()
         let blitEncoder = commandBuffer?.makeBlitCommandEncoder()
         let drawable = self.metalView.currentDrawable
 
