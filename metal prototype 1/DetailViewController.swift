@@ -14,10 +14,34 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var metalView: MetalView!
     
+    static var cachedMetalView: MetalView!
+    static var cachedMetalDevice: MTLDevice!
     var metalCommandQueue: MTLCommandQueue!
     var firstTexture: MTLTexture?
     var secondTexture: MTLTexture?
-    var metalDevice: MTLDevice!
+    
+    override func awakeFromNib() {
+        if DetailViewController.cachedMetalView != nil {
+            self.metalView = DetailViewController.cachedMetalView
+//            initMetal()
+        }
+    }
+    func initMetal() {
+        if let defaultDevice = MTLCreateSystemDefaultDevice() {
+            DetailViewController.cachedMetalDevice = defaultDevice
+        }
+        
+        if DetailViewController.cachedMetalView == nil {
+            if self.metalView != nil {
+                DetailViewController.cachedMetalView = self.metalView
+            }
+        }
+        self.metalCommandQueue = DetailViewController.cachedMetalDevice.makeCommandQueue()
+        self.metalView.device = DetailViewController.cachedMetalDevice
+        self.metalView.contentMode = .scaleAspectFit
+        self.metalView.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
+        self.metalView.framebufferOnly = false
+    }
     
     func configureView() {
         // Update the user interface for the detail item.
@@ -26,13 +50,13 @@ class DetailViewController: UIViewController {
                 label.text = detail.description
             }
         }
-        if let defaultDevice = MTLCreateSystemDefaultDevice() {
-            self.metalDevice = defaultDevice
-            self.metalCommandQueue = self.metalDevice.makeCommandQueue()
-            self.metalView.device = self.metalDevice
-            self.metalView.contentMode = .scaleAspectFit
-            self.metalView.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
-            self.metalView.framebufferOnly = false
+        if DetailViewController.cachedMetalView == nil {
+            if self.metalView != nil {
+                DetailViewController.cachedMetalView = self.metalView
+            }
+        }
+        else {
+            initMetal()
             renderImage()
         }
     }
@@ -42,7 +66,7 @@ class DetailViewController: UIViewController {
         let cgImage = image?.cgImage
         var texture:MTLTexture?
         do {
-            texture = try MTKTextureLoader(device: metalDevice).newTexture(with: cgImage!, options: nil)
+            texture = try MTKTextureLoader(device: DetailViewController.cachedMetalDevice).newTexture(with: cgImage!, options: nil)
         }  catch let error as NSError {
             print("[ERROR] - Failed to create texture. \(error)")
         }
@@ -50,8 +74,8 @@ class DetailViewController: UIViewController {
     }
     
     func renderImage() {
-        self.firstTexture = loadTexture(name: "0.png")
-        self.secondTexture = loadTexture(name: "1.png")
+        self.firstTexture = loadTexture(name: self.detailItem!)
+        self.secondTexture = loadTexture(name: self.detailItem!)
         
         let texture:MTLTexture? = self.secondTexture
         self.metalView.drawableSize = CGSize(width: (texture?.width)!, height: (texture?.height)!)
@@ -82,7 +106,7 @@ class DetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    var detailItem: NSDate? {
+    var detailItem: String? {
         didSet {
             // Update the view.
             configureView()
