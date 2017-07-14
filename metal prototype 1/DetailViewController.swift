@@ -110,16 +110,23 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         else {
             perspectiveMatrix = GLKMatrix4MakeOrtho(-1, 1, -1/aspect, 1/aspect, -1, 1)
         }
-        
-        if (boundsWidth < textureWidth) || (boundsHeight < textureHeight) {
-            let aZoomToSet:CGFloat = normalizedZoomValueForRealZoomValue(theZoomValue:zoomValueForFitToView(), theMinValue:0, theMaxValue: 0 )
-            
-            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, Float(aZoomToSet), Float(aZoomToSet), 1.0)
-        }
-//        perspectiveMatrix = GLKMatrix4Multiply(transformationMatrix, perspectiveMatrix)
-        perspectiveMatrix = GLKMatrix4Multiply(perspectiveMatrix, transformationMatrix)
 
-//        perspectiveMatrix = transformationMatrix
+        // Doing this the KS way is seriously broken right now
+//        if (boundsWidth < textureWidth) || (boundsHeight < textureHeight) {
+//            let aZoomToSet:CGFloat = normalizedZoomValueForRealZoomValue(theZoomValue:zoomValueForFitToView(), theMinValue:0, theMaxValue: 0 )
+//            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, Float(aZoomToSet), Float(aZoomToSet), 1.0)
+//        }
+        // Test
+        let textureAspect:Float = Float(textureWidth/textureHeight)
+        
+        if(textureAspect > 1.0) {
+            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, 1.0, Float(1.0/textureAspect), 1.0)
+        }
+        else {
+            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, textureAspect, 1.0, 1.0)
+        }
+
+        perspectiveMatrix = GLKMatrix4Multiply(perspectiveMatrix, transformationMatrix)
         if uniformBuffer != nil {
             let bufferPointer = uniformBuffer?.contents()
             memcpy(bufferPointer, &perspectiveMatrix, matrix4x4Size)
@@ -134,8 +141,8 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         metalCommandQueue = metalDevice?.makeCommandQueue()
         
         metalView.framebufferOnly = false
-        metalView.contentMode = .scaleAspectFit
-        metalView.autoResizeDrawable = true
+//        metalView.contentMode = .scaleAspectFit
+//        metalView.autoResizeDrawable = true
         metalView.contentScaleFactor = UIScreen.main.scale
         metalView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         metalView.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
