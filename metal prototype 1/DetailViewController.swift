@@ -236,6 +236,7 @@ class DetailViewController: UIViewController, MTKViewDelegate {
                 }
             }
             if detailItem != nil {
+                // DLP: actually just using one texture right now.
                 firstTexture = loadTexture(name: detailItem!)
                 secondTexture = loadTexture(name: detailItem!)
             }
