@@ -11,7 +11,7 @@ import UIKit
 class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
-    var objects = ["0.png", "1.png", "2.png", "3.png", "4.png", "5.png", "6.jpg", "7.jpg", "8.jpg"]
+    var objects = ["0.png", "1.png", "2.png", "3.png", "4.png", "5.png", "6.jpg", "7.jpg", "8.jpg", "9.jpg"]
 
 
     override func viewDidLoad() {

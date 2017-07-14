@@ -10,6 +10,8 @@
 
 import UIKit
 import MetalKit
+import GLKit
+import Foundation
 
 class DetailViewController: UIViewController, MTKViewDelegate {
 
@@ -19,10 +21,13 @@ class DetailViewController: UIViewController, MTKViewDelegate {
     var metalCommandQueue: MTLCommandQueue?
     var firstTexture: MTLTexture?
     var secondTexture: MTLTexture?
-
     /// Metal device
     var metalDevice = MTLCreateSystemDefaultDevice()
-    
+    var perspectiveMatrix:GLKMatrix4 = GLKMatrix4Identity
+    var transformationMatrix:GLKMatrix4 = GLKMatrix4Identity
+    var uniformBuffer:MTLBuffer?
+    let matrix4x4Size = MemoryLayout<Float>.size * 4*4
+
     /// Metal pipeline state we use for rendering
     var renderPipelineState: MTLRenderPipelineState?
     
@@ -40,6 +45,86 @@ class DetailViewController: UIViewController, MTKViewDelegate {
 
     override func awakeFromNib() {
         initMetal()
+        updatePerspectiveMatrix()
+    }
+    
+    
+//    [self stopPushingImageLayer];
+//    mZoom = theZoom;
+//    CGFloat aRealZoomValue = [self realZoom];
+//    if(aRealZoomValue > kMaxZoom)
+//    {
+//    aRealZoomValue = kMaxZoom;
+//    mZoom = [self normalizedZoomValueForRealZoomValue:aRealZoomValue minValue:0 maxValue:0];
+//    }
+//    else if(aRealZoomValue < kMinZoom)
+//    {
+//    aRealZoomValue = kMinZoom;
+//    mZoom = [self normalizedZoomValueForRealZoomValue:aRealZoomValue minValue:0 maxValue:0];
+//    }
+//
+//    if(mShouldOffsetCenterForZoom)
+//    {
+//    // only offset the center if a zoom "focus" has been set
+//    // we directly access the center ivar to avoid triggering kvo
+//    // a zoom using the scroll wheel with the mouse over some
+//    // part of the visible image
+//    mCenter = NSMakePoint((mZoomLocation.x - (mZoomOffset.x * aRealZoomValue)),
+//    (mZoomLocation.y - (mZoomOffset.y * aRealZoomValue)));
+//    }
+    
+    func zoomValueForFitToView()->CGFloat {
+        let textureWidth:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.width) : 0
+        let textureHeight:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.height) : 0
+
+        let originalImageRect:CGRect = CGRect(x: 0, y: 0, width:textureWidth, height: textureHeight)
+        let insets:CGRect = CGRect(x: view.bounds.minX + 10, y: view.bounds.minX + 10, width: view.bounds.width - 10, height: view.bounds.height - 10)
+        let rectForZoom:CGRect =  Transforms.centerRect(rectToCenter:originalImageRect, containerRect:insets)
+        let zoomValue:CGFloat = Transforms.calculateZoomValueForImageSize(imageSize:rectForZoom.size, textureWidth:CGFloat(textureWidth))
+        return zoomValue
+    }
+    
+    func normalizedZoomValueForRealZoomValue(theZoomValue:CGFloat, theMinValue:CGFloat, theMaxValue:CGFloat)->CGFloat {
+        let B:CGFloat = Transforms.kMinZoom
+        var A:CGFloat = Transforms.kMaxZoom - B
+        
+        if A == 0.0 {
+            A = 1.0
+        }
+        let aNormalizedScale:CGFloat = CGFloat(sqrt((theZoomValue - B)/A))
+        return aNormalizedScale
+    }
+
+    func updatePerspectiveMatrix() {
+        let textureWidth:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.width) : 0
+        let textureHeight:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.height) : 0
+        let boundsWidth:CGFloat = CGFloat(view.bounds.width)
+        let boundsHeight:CGFloat = CGFloat(view.bounds.height)
+        perspectiveMatrix = GLKMatrix4Identity
+        transformationMatrix = GLKMatrix4Identity
+        let aspect:Float = Float(boundsWidth/boundsHeight)
+        
+        if(aspect > 1.0) {
+            perspectiveMatrix = GLKMatrix4MakeOrtho(-aspect, aspect, -1, 1, -1, 1)
+        }
+        else {
+            perspectiveMatrix = GLKMatrix4MakeOrtho(-1, 1, -1/aspect, 1/aspect, -1, 1)
+        }
+        
+        if (boundsWidth < textureWidth) || (boundsHeight < textureHeight) {
+            let aZoomToSet:CGFloat = normalizedZoomValueForRealZoomValue(theZoomValue:zoomValueForFitToView(), theMinValue:0, theMaxValue: 0 )
+            
+            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, Float(aZoomToSet), Float(aZoomToSet), 1.0)
+        }
+//        perspectiveMatrix = GLKMatrix4Multiply(transformationMatrix, perspectiveMatrix)
+        perspectiveMatrix = GLKMatrix4Multiply(perspectiveMatrix, transformationMatrix)
+
+//        perspectiveMatrix = transformationMatrix
+        if uniformBuffer != nil {
+            let bufferPointer = uniformBuffer?.contents()
+            memcpy(bufferPointer, &perspectiveMatrix, matrix4x4Size)
+        }
+
     }
     
     func initMetal() {
@@ -59,12 +144,19 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         secondTexture = loadTexture(name: "0.png")
         metalView.delegate = self
 
+        // Make a buffer to hold our project matrix (so we can have the right proportions when our view isn't square)
+        updatePerspectiveMatrix()
+        uniformBuffer = metalDevice?.makeBuffer(length: MemoryLayout<Float>.size * 4*4, options: [])
+        let bufferPointer = uniformBuffer?.contents()
+
+        memcpy(bufferPointer, &perspectiveMatrix, matrix4x4Size)
         initializeRenderPipelineState()
     }
     
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-//projectionMatrix = Matrix4.makePerspectiveViewAngle(Matrix4.degrees(toRad: 85.0), aspectRatio: Float(self.view.bounds.size.width / self.view.bounds.size.height), nearZ: 0.01, farZ: 100.0)
+        updatePerspectiveMatrix()
     }
+        
 
     open func didRenderTexture(_ texture: MTLTexture, withCommandBuffer commandBuffer: MTLCommandBuffer, device: MTLDevice) {
         /**
@@ -82,13 +174,14 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         }
         let commandBuffer = metalCommandQueue?.makeCommandBuffer()
 
-        let encoder = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
-        encoder?.pushDebugGroup("RenderFrame")
-        encoder?.setRenderPipelineState(renderPipelineState)
-        encoder?.setFragmentTexture(secondTexture, index: 0)
-        encoder?.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: 1)
-        encoder?.popDebugGroup()
-        encoder?.endEncoding()
+        let render = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
+        render?.pushDebugGroup("RenderFrame")
+        render?.setRenderPipelineState(renderPipelineState)
+        render?.setFragmentTexture(secondTexture, index: 0)
+        render?.setVertexBuffer(uniformBuffer, offset: 0, index: 0)
+        render?.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: 1)
+        render?.popDebugGroup()
+        render?.endEncoding()
 
         commandBuffer?.addScheduledHandler { [weak self] (buffer) in
             guard let unwrappedSelf = self else { return }
@@ -112,7 +205,7 @@ class DetailViewController: UIViewController, MTKViewDelegate {
 //    [[self imageTransformation] _setInitialZoomValueHasBeenSet:YES];
 //
 //    // If the image size is larger than our view, we zoom to fit otherwise don't do anything
-//    // The |imageTransformation| hasn't been set yet, meaning this is the first time this image scope has been dispalyed, and we need to initially zoom to fit (if the image is too big for the view).
+//    // The |imageTransformation| hasn't been set yet, meaning this is the first time this image scope has been displayed, and we need to initially zoom to fit (if the image is too big for the view).
 //    NSSize originalImageSize = [[self imageLayer] visibleOriginalImageSize];
 //    NSSize viewSize = [self bounds].size;
 //    if (viewSize.width < originalImageSize.width
@@ -134,7 +227,6 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         pipelineDescriptor.sampleCount = 1
         pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         pipelineDescriptor.depthAttachmentPixelFormat = .invalid
-        
         pipelineDescriptor.vertexFunction = library?.makeFunction(name: "mapTexture")
         pipelineDescriptor.fragmentFunction = library?.makeFunction(name: "displayTexture")
         

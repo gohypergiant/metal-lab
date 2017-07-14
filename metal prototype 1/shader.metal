@@ -14,7 +14,11 @@ typedef struct {
     float2 textureCoordinate;
 } TextureMappingVertex;
 
-vertex TextureMappingVertex mapTexture(unsigned int vertex_id [[ vertex_id ]]) {
+struct Uniforms {
+    float4x4 mvp_matrix;
+};
+
+vertex TextureMappingVertex mapTexture(unsigned int vertex_id [[ vertex_id ]], constant Uniforms& uniforms [[ buffer(0) ]]) {
     float4x4 renderedCoordinates = float4x4(float4( -1.0, -1.0, 0.0, 1.0 ),
                                             float4(  1.0, -1.0, 0.0, 1.0 ),
                                             float4( -1.0,  1.0, 0.0, 1.0 ),
@@ -25,9 +29,8 @@ vertex TextureMappingVertex mapTexture(unsigned int vertex_id [[ vertex_id ]]) {
                                            float2( 0.0, 0.0 ),
                                            float2( 1.0, 0.0 ));
     TextureMappingVertex outVertex;
-    outVertex.renderedCoordinate = renderedCoordinates[vertex_id];
+    outVertex.renderedCoordinate = uniforms.mvp_matrix * renderedCoordinates[vertex_id];
     outVertex.textureCoordinate = textureCoordinates[vertex_id];
-    
     return outVertex;
 }
 

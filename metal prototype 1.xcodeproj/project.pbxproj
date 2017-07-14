@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		370001631F188F41009627AB /* 9.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 370001621F188F08009627AB /* 9.jpg */; };
 		378221021F174BB200F2BA1D /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 378221011F174BB200F2BA1D /* MetalView.swift */; };
 		3782210E1F17F16900F2BA1D /* 6.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3782210C1F17F10100F2BA1D /* 6.jpg */; };
 		3782210F1F17F16900F2BA1D /* 7.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3782210D1F17F10100F2BA1D /* 7.jpg */; };
 		378221111F17F20100F2BA1D /* 8.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 378221101F17F1FD00F2BA1D /* 8.jpg */; };
 		37867F121F18316100680F8D /* shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 37867F111F18316100680F8D /* shader.metal */; };
+		37867F1D1F185FBE00680F8D /* Transforms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37867F1C1F185FBE00680F8D /* Transforms.swift */; };
 		37F8B6FC1F17139C00497E29 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8B6FB1F17139C00497E29 /* AppDelegate.swift */; };
 		37F8B6FE1F17139C00497E29 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8B6FD1F17139C00497E29 /* MasterViewController.swift */; };
 		37F8B7001F17139C00497E29 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8B6FF1F17139C00497E29 /* DetailViewController.swift */; };
@@ -46,11 +48,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		370001621F188F08009627AB /* 9.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 9.jpg; sourceTree = "<group>"; };
 		378221011F174BB200F2BA1D /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		3782210C1F17F10100F2BA1D /* 6.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 6.jpg; sourceTree = "<group>"; };
 		3782210D1F17F10100F2BA1D /* 7.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 7.jpg; sourceTree = "<group>"; };
 		378221101F17F1FD00F2BA1D /* 8.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 8.jpg; sourceTree = "<group>"; };
 		37867F111F18316100680F8D /* shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shader.metal; sourceTree = "<group>"; };
+		37867F1C1F185FBE00680F8D /* Transforms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transforms.swift; sourceTree = "<group>"; };
 		37F8B6F81F17139C00497E29 /* metal prototype 1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "metal prototype 1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		37F8B6FB1F17139C00497E29 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		37F8B6FD1F17139C00497E29 /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -131,6 +135,7 @@
 				37F8B7091F17139C00497E29 /* Info.plist */,
 				378221011F174BB200F2BA1D /* MetalView.swift */,
 				37867F111F18316100680F8D /* shader.metal */,
+				37867F1C1F185FBE00680F8D /* Transforms.swift */,
 			);
 			path = "metal prototype 1";
 			sourceTree = "<group>";
@@ -156,6 +161,7 @@
 		37F8B72B1F17195B00497E29 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				370001621F188F08009627AB /* 9.jpg */,
 				378221101F17F1FD00F2BA1D /* 8.jpg */,
 				3782210C1F17F10100F2BA1D /* 6.jpg */,
 				3782210D1F17F10100F2BA1D /* 7.jpg */,
@@ -273,6 +279,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				370001631F188F41009627AB /* 9.jpg in Resources */,
 				378221111F17F20100F2BA1D /* 8.jpg in Resources */,
 				3782210F1F17F16900F2BA1D /* 7.jpg in Resources */,
 				37F8B7361F17197C00497E29 /* 5.png in Resources */,
@@ -311,6 +318,7 @@
 			files = (
 				378221021F174BB200F2BA1D /* MetalView.swift in Sources */,
 				37F8B7001F17139C00497E29 /* DetailViewController.swift in Sources */,
+				37867F1D1F185FBE00680F8D /* Transforms.swift in Sources */,
 				37F8B6FE1F17139C00497E29 /* MasterViewController.swift in Sources */,
 				37F8B6FC1F17139C00497E29 /* AppDelegate.swift in Sources */,
 				37867F121F18316100680F8D /* shader.metal in Sources */,
