@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 
+// DLP - I am trying to group and house most of the sizing logic from Kaleidoscope here.
+// Note: this is the original KS code for the most port, migrated to swift.
 public class Transforms:NSObject {
     
     public static let kMinZoom:CGFloat = 0.05
@@ -119,5 +121,24 @@ public class Transforms:NSObject {
         }
         
         return zoomValueToReturn
+    }
+    
+    public class func zoomValueForFitToView(width:CGFloat, height:CGFloat, bounds:CGRect)->CGFloat {
+        let originalImageRect:CGRect = CGRect(x: 0, y: 0, width:width, height: height)
+        let insets:CGRect = CGRect(x: bounds.minX + 10, y: bounds.minX + 10, width: bounds.width - 10, height: bounds.height - 10)
+        let rectForZoom:CGRect =  Transforms.centerRect(rectToCenter:originalImageRect, containerRect:insets)
+        let zoomValue:CGFloat = Transforms.calculateZoomValueForImageSize(imageSize:rectForZoom.size, textureWidth:CGFloat(width))
+        return zoomValue
+    }
+    
+    public class func normalizedZoomValueForRealZoomValue(theZoomValue:CGFloat, theMinValue:CGFloat, theMaxValue:CGFloat)->CGFloat {
+        let B:CGFloat = Transforms.kMinZoom
+        var A:CGFloat = Transforms.kMaxZoom - B
+        
+        if A == 0.0 {
+            A = 1.0
+        }
+        let aNormalizedScale:CGFloat = CGFloat(sqrt((theZoomValue - B)/A))
+        return aNormalizedScale
     }
 }

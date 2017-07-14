@@ -48,7 +48,7 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         updatePerspectiveMatrix()
     }
     
-    
+    // DLP: Original Sofa code here for short term reference
 //    [self stopPushingImageLayer];
 //    mZoom = theZoom;
 //    CGFloat aRealZoomValue = [self realZoom];
@@ -73,28 +73,35 @@ class DetailViewController: UIViewController, MTKViewDelegate {
 //    (mZoomLocation.y - (mZoomOffset.y * aRealZoomValue)));
 //    }
     
-    func zoomValueForFitToView()->CGFloat {
-        let textureWidth:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.width) : 0
-        let textureHeight:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.height) : 0
-
-        let originalImageRect:CGRect = CGRect(x: 0, y: 0, width:textureWidth, height: textureHeight)
-        let insets:CGRect = CGRect(x: view.bounds.minX + 10, y: view.bounds.minX + 10, width: view.bounds.width - 10, height: view.bounds.height - 10)
-        let rectForZoom:CGRect =  Transforms.centerRect(rectToCenter:originalImageRect, containerRect:insets)
-        let zoomValue:CGFloat = Transforms.calculateZoomValueForImageSize(imageSize:rectForZoom.size, textureWidth:CGFloat(textureWidth))
-        return zoomValue
-    }
+    // DLP: also
+    //
+    //    NSParameterAssert([self imageTransformation] != nil);
+    //    if ([[self imageTransformation] _initialZoomValueHasBeenSet])
+    //    {
+    //    [self setZoomValue:[[self imageTransformation] zoom]];
+    //    }
+    //    else
+    //    {
+    //    // See the decl of this property for an explanation of this hack.
+    //    [[self imageTransformation] _setInitialZoomValueHasBeenSet:YES];
+    //
+    //    // If the image size is larger than our view, we zoom to fit otherwise don't do anything
+    //    // The |imageTransformation| hasn't been set yet, meaning this is the first time this image scope has been displayed, and we need to initially zoom to fit (if the image is too big for the view).
+    //    NSSize originalImageSize = [[self imageLayer] visibleOriginalImageSize];
+    //    NSSize viewSize = [self bounds].size;
+    //    if (viewSize.width < originalImageSize.width
+    //    || viewSize.height < originalImageSize.height)
+    //    {
+    //    CGFloat aZoomToSet = [[self imageTransformation] normalizedZoomValueForRealZoomValue:[self zoomValueForFitToView] minValue:0 maxValue:0];
+    //    [[self imageTransformation] setZoom:aZoomToSet];
+    //    }
+    //    }
+    //
+    //    // bounds is already pixel based, no need to do backing rect conversion.
+    //    NSRect bounds = [self bounds];
+    //    // This method expects the point in the view's coordinae system
+    //    [self _setImageCenterPointInView:SFRectCenter(bounds)];
     
-    func normalizedZoomValueForRealZoomValue(theZoomValue:CGFloat, theMinValue:CGFloat, theMaxValue:CGFloat)->CGFloat {
-        let B:CGFloat = Transforms.kMinZoom
-        var A:CGFloat = Transforms.kMaxZoom - B
-        
-        if A == 0.0 {
-            A = 1.0
-        }
-        let aNormalizedScale:CGFloat = CGFloat(sqrt((theZoomValue - B)/A))
-        return aNormalizedScale
-    }
-
     func updatePerspectiveMatrix() {
         let textureWidth:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.width) : 0
         let textureHeight:CGFloat = firstTexture != nil ? CGFloat(firstTexture!.height) : 0
@@ -112,18 +119,24 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         }
 
         // Doing this the KS way is seriously broken right now
-//        if (boundsWidth < textureWidth) || (boundsHeight < textureHeight) {
-//            let aZoomToSet:CGFloat = normalizedZoomValueForRealZoomValue(theZoomValue:zoomValueForFitToView(), theMinValue:0, theMaxValue: 0 )
-//            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, Float(aZoomToSet), Float(aZoomToSet), 1.0)
-//        }
-        // Test
-        let textureAspect:Float = Float(textureWidth/textureHeight)
-        
-        if(textureAspect > 1.0) {
-            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, 1.0, Float(1.0/textureAspect), 1.0)
+        if false {
+            if (boundsWidth < textureWidth) || (boundsHeight < textureHeight) {
+                // DLP: I have not traversed this logic fully in KS yet and really have no idea where this is going
+                let zoomValue = Transforms.zoomValueForFitToView(width:textureWidth, height:textureHeight, bounds:view.bounds)
+                let aZoomToSet:CGFloat = Transforms.normalizedZoomValueForRealZoomValue(theZoomValue:zoomValue, theMinValue:0, theMaxValue: 0 )
+                transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, Float(aZoomToSet), Float(aZoomToSet), 1.0)
+            }
         }
         else {
-            transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, textureAspect, 1.0, 1.0)
+            // DLP: not as fancy but it does the job for now
+            let textureAspect:Float = Float(textureWidth/textureHeight)
+            
+            if(textureAspect > 1.0) {
+                transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, 1.0, Float(1.0/textureAspect), 1.0)
+            }
+            else {
+                transformationMatrix = GLKMatrix4Scale(GLKMatrix4Identity, textureAspect, 1.0, 1.0)
+            }
         }
 
         perspectiveMatrix = GLKMatrix4Multiply(perspectiveMatrix, transformationMatrix)
@@ -131,7 +144,6 @@ class DetailViewController: UIViewController, MTKViewDelegate {
             let bufferPointer = uniformBuffer?.contents()
             memcpy(bufferPointer, &perspectiveMatrix, matrix4x4Size)
         }
-
     }
     
     func initMetal() {
@@ -141,8 +153,6 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         metalCommandQueue = metalDevice?.makeCommandQueue()
         
         metalView.framebufferOnly = false
-//        metalView.contentMode = .scaleAspectFit
-//        metalView.autoResizeDrawable = true
         metalView.contentScaleFactor = UIScreen.main.scale
         metalView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         metalView.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
@@ -199,35 +209,6 @@ class DetailViewController: UIViewController, MTKViewDelegate {
         commandBuffer?.commit()
     }
 
-    
-//
-//    NSParameterAssert([self imageTransformation] != nil);
-//    if ([[self imageTransformation] _initialZoomValueHasBeenSet])
-//    {
-//    [self setZoomValue:[[self imageTransformation] zoom]];
-//    }
-//    else
-//    {
-//    // See the decl of this property for an explanation of this hack.
-//    [[self imageTransformation] _setInitialZoomValueHasBeenSet:YES];
-//
-//    // If the image size is larger than our view, we zoom to fit otherwise don't do anything
-//    // The |imageTransformation| hasn't been set yet, meaning this is the first time this image scope has been displayed, and we need to initially zoom to fit (if the image is too big for the view).
-//    NSSize originalImageSize = [[self imageLayer] visibleOriginalImageSize];
-//    NSSize viewSize = [self bounds].size;
-//    if (viewSize.width < originalImageSize.width
-//    || viewSize.height < originalImageSize.height)
-//    {
-//    CGFloat aZoomToSet = [[self imageTransformation] normalizedZoomValueForRealZoomValue:[self zoomValueForFitToView] minValue:0 maxValue:0];
-//    [[self imageTransformation] setZoom:aZoomToSet];
-//    }
-//    }
-//
-//    // bounds is already pixel based, no need to do backing rect conversion.
-//    NSRect bounds = [self bounds];
-//    // This method expects the point in the view's coordinae system
-//    [self _setImageCenterPointInView:SFRectCenter(bounds)];
-    
     fileprivate func initializeRenderPipelineState() {
         let library = metalDevice?.makeDefaultLibrary()
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
